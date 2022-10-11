@@ -26,36 +26,44 @@ class JbHiFi:
 
             print("Initiating the Automation | Powered by Playwright.")
             page.goto(self.website_url)
-            page.wait_for_url(self.website_url, timeout=1*1000)
+            page.wait_for_url(self.website_url, timeout=1*10000)
 
-            page.keyboard.press("PageDown")
-
-            # xpath for displaying the number of products per page. This one is for 100 products per page.
-            page_size_xpath = """//*[@id="collection-container"]/div[4]/div/div[2]/ul/li[4]/a"""
-            
-            try:                
-                page.wait_for_selector(page_size_xpath, timeout=1*10000)
-                page.query_selector(page_size_xpath).click()            
+            try:
+                main_content = page.query_selector("//div[@class='collection-results-loop']")
             except PlaywrightTimeoutError:
                 print("Content loading error! Please wait few seconds and run the script again.")
                 sleep(3)
                 sys.exit()
 
+            page.keyboard.press("PageDown")
+
+            # xpath for displaying the number of products per page. This one is for 100 products per page.
+            try:
+                page_size_xpath = """//*[@id="collection-container"]/div[4]/div/div[2]/ul/li[4]/a""" 
+                try:               
+                    page.query_selector(page_size_xpath).click()
+                except AttributeError:
+                    pass 
+            except PlaywrightTimeoutError:
+                pass
+
+            category_name = page.query_selector("//div[@id='collection-container']/h1").inner_text().strip()
+
             
             # for load more button
             button_xpath = """//button[@class='load-more-button']"""
-            page.wait_for_selector(button_xpath, timeout=1*100000)
+            # page.wait_for_selector(button_xpath, timeout=1*100000)
 
             total_results = round(float(page.query_selector("//div[@class='infinite-hits-text']").inner_text().split()[3]) / 100, 0)
             print(f"Estimated number of pages to scrape | {total_results} pages.")
 
             # Infinite click until the bottom of the page.
-            for clicks in range (1, int(total_results)+2):
+            for clicks in range (1, int(total_results)+20):  # Since I am unable to figure out the total number of I just added the extra 20 for just a safey measure. The loop is going to break playwright get the timeouterror on click load more button.
                 try:
-                    print(f"Scraping | page number {clicks}.")
+                    print(f"Scraping | page number {clicks}.")                    
                     page.wait_for_timeout(timeout=3*1000)           
                     page.query_selector(button_xpath).click()
-                    page.keyboard.press("PageUp")
+                    page.keyboard.press("PageUp")                    
                 except AttributeError:
                     break
             
@@ -68,9 +76,10 @@ class JbHiFi:
             soup = BeautifulSoup(content, 'lxml')
 
             # total_results = float(soup.find('div', class_='infinite-hits-text').text.strip().split()[3]) / 36
-            
+            # up_button = page.query_selector("//button[@class='scroll-up-button']").click()
+            page.wait_for_timeout(timeout=5*1000)
             ##### Prouduct datas #####
-            category_name = soup.find('div', id='collection-container').find('h1').text.strip()
+            
             all_names = [title.get('title') for title in soup.find_all('a', class_='ais-details-a product-tile')]
             all_prices = [price.text.strip() for price in soup.find_all('div', class_='pricing-block')]
             all_links = [f"https://www.jbhifi.com.au{link.get('href')}" for link in soup.find_all('a', class_='ais-details-a product-tile')]
