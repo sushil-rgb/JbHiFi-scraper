@@ -58,12 +58,9 @@ class JbHiFi:
             button_xpath = """//button[@class='load-more-button']"""
             # page.wait_for_selector(button_xpath, timeout=1*100000)
 
-            total_results = round(float(page.query_selector("//div[@class='infinite-hits-text']").inner_text().split()[3]) / 100, 0)
+            total_results = round(float(page.query_selector("//div[@class='infinite-hits-text']").inner_text().split()[3]) / 100, 0)            
             
-            if total_results == 0.0:
-                print(f"Estimated number of pages to scrape | 1 page.")
-            else:
-                print(f"Estimate number of pages to scrape | {int(total_results)} page")
+            print(f"Estimate number of pages to scrape | {int(total_results)} page")
 
             # Infinite click until the bottom of the page.
             for clicks in range (1, int(total_results)+20):  # Since I am unable to figure out the total number of I just added the extra 20 for just a safey measure. The loop is going to break playwright get the timeouterror on click load more button.
