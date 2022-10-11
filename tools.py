@@ -46,9 +46,12 @@ class JbHiFi:
                     pass 
             except PlaywrightTimeoutError:
                 pass
-
-            category_name = page.query_selector("//div[@id='collection-container']/h1").inner_text().strip()
-
+            
+            try:
+                category_name = page.query_selector("//div[@id='collection-container']/h1").inner_text().strip()
+            except PlaywrightTimeoutError:
+                print("Content loading error! Please wait few seconds and run the script again.")
+                sys.exit()
             
             # for load more button
             button_xpath = """//button[@class='load-more-button']"""
