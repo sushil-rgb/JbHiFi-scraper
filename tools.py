@@ -50,7 +50,7 @@ class JbHiFi:
             try:
                 category_name = page.query_selector("//div[@id='collection-container']/h1").inner_text().strip()
                 print(f"Product category | {category_name}.")
-            except PlaywrightTimeoutError:
+            except AttributeError:
                 print("Content loading error! Please wait few seconds and run the script again.")
                 sys.exit()
             
