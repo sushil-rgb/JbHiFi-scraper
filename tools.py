@@ -60,7 +60,11 @@ class JbHiFi:
             button_xpath = """//button[@class='load-more-button']"""      
 
             # Scraping total results available on the website to estimate the total number of pages to scrape. Estimation may not be accurate.
-            total_results = round(float(page.query_selector("//div[@class='infinite-hits-text']").inner_text().split()[3]) / 100, 0)            
+            try:
+                total_results = round(float(page.query_selector("//div[@class='infinite-hits-text']").inner_text().split()[3]) / 100, 0)
+            except AttributeError:
+                print(f"Content must be different. Url must include all product values with pagination. Please try new url and run the script again.")
+                sys.exit()            
             
             if total_results == 0:
                 print(f"Estimate number of pages to scrape | 1 page.")
