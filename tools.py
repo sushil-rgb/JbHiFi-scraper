@@ -29,6 +29,7 @@ class JbHiFi:
             page.goto(self.website_url)
             page.wait_for_url(self.website_url, timeout=1*10000)
 
+            
             try:
                 main_content = page.query_selector("//div[@class='collection-results-loop']")
             except PlaywrightTimeoutError:
