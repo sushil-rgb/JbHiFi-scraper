@@ -1,3 +1,4 @@
+import re
 import random
 from time import sleep
 import requests
@@ -54,16 +55,19 @@ class JbHiFi:
                 print("Content loading error! Please wait few seconds and run the script again.")
                 sys.exit()
             
-            # for load more button
-            button_xpath = """//button[@class='load-more-button']"""
-            # page.wait_for_selector(button_xpath, timeout=1*100000)
+            # For load more button
+            button_xpath = """//button[@class='load-more-button']"""      
 
+            # Scraping total results available on the website to estimate the total number of pages to scrape. Estimation may not be accurate.
             total_results = round(float(page.query_selector("//div[@class='infinite-hits-text']").inner_text().split()[3]) / 100, 0)            
             
-            print(f"Estimate number of pages to scrape | {int(total_results)} page")
+            if total_results == 0:
+                print(f"Estimate number of pages to scrape | 1 page.")
+            else:
+                print(f"Estimate number of pages to scrape | {int(total_results)} page.")
 
             # Infinite click until the bottom of the page.
-            for clicks in range (1, int(total_results)+20):  # Since I am unable to figure out the total number pages of I just added the extra 20 for just a safey measure. The loop is going to break playwright get the timeouterror on click load more button.
+            for clicks in range (1, int(total_results)+20):  # Since I am unable to figure out the total number pages of I just added the extra 20 for just a safey measure. The loop breaks after there is more button to click.
                 try:
                     print(f"Scraping | page number {clicks}.")                    
                     page.wait_for_timeout(timeout=3*1000)           
@@ -71,26 +75,55 @@ class JbHiFi:
                     page.keyboard.press("PageUp")                    
                 except AttributeError:
                     break
-            
-            
+                        
 
             links_xpath = "//a[@class='ais-details-a product-tile']"            
             page.wait_for_selector(links_xpath, timeout=1*10000)
 
             content = page.content()
             soup = BeautifulSoup(content, 'lxml')
-
-            # total_results = float(soup.find('div', class_='infinite-hits-text').text.strip().split()[3]) / 36
+            
             # up_button = page.query_selector("//button[@class='scroll-up-button']").click()
             page.wait_for_timeout(timeout=5*1000)
-            ##### Prouduct datas #####
+
+
+            ############################################ Prouduct datas ############################################################################################
+            # For price as it has multiple values:
+            orginal_price = []
+            discount_price = []
             
+            price_box = soup.find_all('div', class_='pricing-block')
+            for prices in price_box:
+                try:
+                    orginal_price.append(prices.find('span', class_='ais-hit--price price').text.strip())
+                except AttributeError:
+                    orginal_price.append(prices.find('s', class_='ais-hit--price-striked').text.strip())
+
+                try:
+                    discount_price.append(prices.find('span', class_='sale').text.strip())
+                except AttributeError:
+                    discount_price.append("N/A")                    
+
+            # For reviews section:
+            customer_reviews = []    
+            review_datas = soup.find_all('div', class_='ais-hit--details product-tile__details')
+            for review in review_datas:
+                try:
+                    review_ratings = review.find('span', class_='review-rating').text.strip()
+                    review_count = re.sub(r"[\([{})\]]", "", review.find('span', class_='review-count').text.strip())
+                    
+                    customer_reviews.append(f"{review_ratings}/5 out of {review_count} reviews.")
+                except AttributeError:
+                    customer_reviews.append("N/A")
+
+
             all_names = [title.get('title') for title in soup.find_all('a', class_='ais-details-a product-tile')]
-            all_prices = [price.text.strip() for price in soup.find_all('div', class_='pricing-block')]
+            # all_prices = [price.text.strip() for price in soup.find_all('div', class_='pricing-block')]
             all_links = [f"https://www.jbhifi.com.au{link.get('href')}" for link in soup.find_all('a', class_='ais-details-a product-tile')]
             all_images = [link.get('src') for link in soup.find_all('img', class_='product-tile__image')]
-            print("Done!")
-            browser.close()
-            #############################
+            # all_reviews = [f"{star.find('span', class_='review-rating').text.strip()}/5 out of {star.find('span', class_='review-count').text.strip()} reviews." for star in soup.find_all('div', class_='star-review')]
+            #################################################################################################################################################
 
-            return category_name, all_names, all_prices, all_links, all_images
+            browser.close()
+
+            return category_name, all_names, orginal_price, discount_price, customer_reviews, all_links, all_images
