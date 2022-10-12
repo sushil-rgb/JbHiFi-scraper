@@ -67,12 +67,12 @@ class JbHiFi:
                 sys.exit()            
             
             if total_results == 0:
-                print(f"Estimate number of pages to scrape | 1 page.")
+                print(f"Estimate number of pages to scrape | 1 page. * Estimation may not be accurate.")
             else:
                 print(f"Estimate number of pages to scrape | {int(total_results)} page.")
 
             # Infinite click until the bottom of the page.
-            for clicks in range (1, int(total_results)+20):  # Since I am unable to figure out the total number pages of I just added the extra 20 for just a safey measure. The loop breaks after there is more button to click.
+            for clicks in range (1, int(total_results)+100):  # Since I am unable to figure out the total number pages of I just added the extra 100 :D for just a safey measure. The loop breaks after there is more button to click.
                 try:
                     print(f"Scraping | page number {clicks}.")                    
                     page.wait_for_timeout(timeout=3*1000)           
@@ -115,6 +115,8 @@ class JbHiFi:
             for review in review_datas:
                 try:
                     review_ratings = review.find('span', class_='review-rating').text.strip()
+
+                    # Using regular expression to replace bracket charater in review data:
                     review_count = re.sub(r"[\([{})\]]", "", review.find('span', class_='review-count').text.strip())
                     
                     customer_reviews.append(f"{review_ratings}/5 out of {review_count} reviews.")
