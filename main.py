@@ -2,7 +2,7 @@ from tools import JbHiFi
 import pandas as pd
 
 
-jbhifi_url = "https://www.jbhifi.com.au/collections/games-consoles/playstation"
+jbhifi_url = "https://www.jbhifi.com.au/collections/mobile-phones/iphones"
 
 jbhifi = JbHiFi(jbhifi_url).allProductLinks()
 

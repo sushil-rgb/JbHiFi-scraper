@@ -61,7 +61,7 @@ class JbHiFi:
 
             # Scraping total results available on the website to estimate the total number of pages to scrape. Estimation may not be accurate.
             try:
-                total_results = round(float(page.query_selector("//div[@class='infinite-hits-text']").inner_text().split()[3]) / 100, 0)
+                total_results = round(float(page.query_selector("//div[@class='infinite-hits-text']").inner_text().split()[3]) / 36, 0)
             except AttributeError:
                 print(f"Content must be different. Url must include all product values with pagination. Please try new url and run the script again.")
                 sys.exit()            
