@@ -1,2 +1,2 @@
 # JbHiFi-scraper
-JbHiFI-scraper. A scraper that scrapes product data from and Australian e-commerce website according to the category respectively and saved into the excel format.
+JbHiFI-scraper. A scraper that pulls product data from an Australian e-commerce website and store it into excel database.

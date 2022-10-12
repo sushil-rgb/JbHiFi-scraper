@@ -69,7 +69,7 @@ class JbHiFi:
             if total_results == 0:
                 print(f"Estimate number of pages to scrape | 1 page. * Estimation may not be accurate.")
             else:
-                print(f"Estimate number of pages to scrape | {int(total_results)} page.")
+                print(f"Estimate number of pages to scrape | {int(total_results)} page. * Estimation may not be accurate.")
 
             # Infinite click until the bottom of the page.
             for clicks in range (1, int(total_results)+100):  # Since I am unable to figure out the total number pages of I just added the extra 100 :D for just a safey measure. The loop breaks after there is more button to click.
